@@ -1,0 +1,68 @@
+openapi: 3.0.0
+
+info:
+  title: Gosh
+  description: very simple URL shortener, written in educational purposes
+  version: '0.1'
+  
+servers:
+  - url: http://localhost:5000/api/v1
+    description: local development server
+    
+paths:
+  /url/{identifier}/:
+    get:
+      summary: return information about short url identifier
+      tags:
+        - URL
+      description: get details about existing short URL
+      parameters:
+        - name: identifier
+          in: path
+          schema:
+            type: string
+          required: true
+          example: "eH3f"
+      responses:
+        '200':
+          description: JSON object with identifier and long URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URL'
+        '404':
+          description: Not Found
+  
+  /url/:
+    post:
+      description: create new identifier for given URL
+      tags:
+        - URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  example: 'http://example.com'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URL'
+
+components:
+  schemas:
+    URL:
+      properties:
+        id:
+          type: string
+          example: 'dNe2i'
+        url:
+          type: string
+          example: 'http://example.com/'
