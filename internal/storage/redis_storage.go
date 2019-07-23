@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"errors"
@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/go-redis/redis"
+
+	"github.com/Quard/gosh/internal/generator"
 )
 
 const dbLastIdKey = "gosh:lastid"
@@ -70,7 +72,7 @@ func (storage *RedisIdentifierStorage) getNextIdentifier() (string, error) {
 		log.Printf("[RedisIdentifierStorage.getNextIdentifier] redis error: %v", err)
 		return "", errors.New("can't get last identifier")
 	} else {
-		identifier, err = GenerateNextSequence(lastIdentifier)
+		identifier, err = generator.GenerateNextSequence(lastIdentifier)
 		if err != nil {
 			log.Printf("[RedisIdentifierStorage.getNextIdentifier] sequence generation error: %v", err)
 			return "", errors.New("can't generate new identifier")

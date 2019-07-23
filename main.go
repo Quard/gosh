@@ -8,13 +8,15 @@ import (
 	"net/http"
 
 	"github.com/dimfeld/httptreemux"
+
+	"github.com/Quard/gosh/internal/storage"
 )
 
-var storage URLStorage
+var stor storage.URLStorage
 
 func apiRetrieveUrl(response http.ResponseWriter, request *http.Request) {
 	params := httptreemux.ContextParams(request.Context())
-	url, err := storage.GetURL(params["identifier"])
+	url, err := stor.GetURL(params["identifier"])
 	if err != nil {
 		log.Printf("[apiRetrieveUrl] get url error: %v", err)
 
@@ -22,7 +24,7 @@ func apiRetrieveUrl(response http.ResponseWriter, request *http.Request) {
 	} else if len(url) == 0 {
 		response.WriteHeader(http.StatusNotFound)
 	} else {
-		content, err := json.Marshal(URL{params["identifier"], url})
+		content, err := json.Marshal(storage.URL{params["identifier"], url})
 		if err != nil {
 			log.Printf("[apiRetrieveUrl] json marshal error: %v", err)
 			response.WriteHeader(http.StatusServiceUnavailable)
@@ -40,16 +42,16 @@ func apiCreateUrl(response http.ResponseWriter, request *http.Request) {
 		log.Printf("[apiCreateUrl] json decode error: %v", err)
 		response.WriteHeader(http.StatusBadRequest)
 	} else {
-		identifier, err := storage.AddURL(url.Url)
+		identifier, err := stor.AddURL(url.Url)
 		if err != nil {
 			response.WriteHeader(http.StatusServiceUnavailable)
 		} else {
-			content, err := json.Marshal(URL{identifier, url.Url})
+			content, err := json.Marshal(storage.URL{identifier, url.Url})
 			if err != nil {
 				log.Printf("[apiCreateUrl] json marshal error: %v", err)
 				response.WriteHeader(http.StatusServiceUnavailable)
 			} else {
-				response.WriteHeader(http.StatusOK)
+				response.WriteHeader(http.StatusCreated)
 				response.Write(content)
 			}
 		}
@@ -58,7 +60,7 @@ func apiCreateUrl(response http.ResponseWriter, request *http.Request) {
 
 func redirect(response http.ResponseWriter, request *http.Request) {
 	params := httptreemux.ContextParams(request.Context())
-	url, err := storage.GetURL(params["identifier"])
+	url, err := stor.GetURL(params["identifier"])
 	if err != nil {
 		log.Printf("[apiRetrieveUrl] get url error: %v", err)
 
@@ -78,9 +80,9 @@ func main() {
 
 	switch storageType {
 	case "redis":
-		storage, err = NewRedisIdentifierStorage()
+		stor, err = storage.NewRedisIdentifierStorage()
 	case "bolt":
-		storage, err = NewSimpleIdentifierStorage()
+		stor, err = storage.NewSimpleIdentifierStorage()
 	default:
 		panic(fmt.Sprintf("unknown storage type '%s'", storageType))
 	}

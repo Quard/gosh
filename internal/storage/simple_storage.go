@@ -1,11 +1,14 @@
-package main
+package storage
 
 import (
 	"errors"
 	"fmt"
 	"log"
+	"testing"
 
 	"github.com/boltdb/bolt"
+
+	"github.com/Quard/gosh/internal/generator"
 )
 
 const dbPath = "gosh.bolt.db"
@@ -97,7 +100,7 @@ func (storage *SimpleIdentifierStorage) getNextIdentifier() (string, error) {
 			storage.lastIdentifier = InitialIdentifier
 			identifier = InitialIdentifier
 		} else {
-			identifier, err = GenerateNextSequence(storage.lastIdentifier)
+			identifier, err = generator.GenerateNextSequence(storage.lastIdentifier)
 			storage.lastIdentifier = identifier
 			if err != nil {
 				log.Printf("[SimpleIdentifierStorage.getNextIdentifier] generate next id error: %v", err)
@@ -120,4 +123,20 @@ func (storage *SimpleIdentifierStorage) getNextIdentifier() (string, error) {
 	}
 
 	return identifier, nil
+}
+
+func assertSequenceEqual(t *testing.T, got, want string) {
+	t.Helper()
+
+	if got != want {
+		t.Errorf("got '%s' want '%s'", got, want)
+	}
+}
+
+func assertNoError(t *testing.T, err error) {
+	t.Helper()
+
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
 }
