@@ -6,6 +6,12 @@ quite simple URL shortener service without UI made in education purposes
 
 ## How to run
 
+`docker-compose -f build/docker-compose.yml up`
+
+service will be available on `http://localhost:5000/`
+
+or build and run manually
+
 `go build`
 
 `./gosh` — with a redis on localhost

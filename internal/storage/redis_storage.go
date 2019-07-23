@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/go-redis/redis"
 
@@ -18,8 +19,12 @@ type RedisIdentifierStorage struct {
 }
 
 func NewRedisIdentifierStorage() (*RedisIdentifierStorage, error) {
+	addr, ok := os.LookupEnv("REDIS_ADDR")
+	if !ok {
+		addr = "localhost:6379"
+	}
 	db := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     addr,
 		Password: "",
 		DB:       0,
 	})

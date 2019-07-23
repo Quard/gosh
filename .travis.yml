@@ -1,13 +1,1 @@
-language: go
-
-go:
-  - 1.12
-  - master
-
-install: true
-
-before_install:
-  - export GO111MODULE=on
-
-scripts:
-  - go test
+build/ci/.travis.yml
